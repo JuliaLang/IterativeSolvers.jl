@@ -27,6 +27,20 @@ end
     @test ldiv!(y, P, copy(x)) == x
 end
 
+@testset "Vector{$T}, conjugated and unconjugated dot products" for T in (ComplexF32, ComplexF64)
+    n = 100
+    x = rand(T, n)
+    y = rand(T, n)
+
+    # Conjugated dot product
+    @test IterativeSolvers._norm(x, ConjugatedDot()) ≈ sqrt(x'x)
+    @test IterativeSolvers._dot(x, y, ConjugatedDot()) ≈ x'y
+
+    # Unonjugated dot product
+    @test IterativeSolvers._norm(x, UnconjugatedDot()) ≈ sqrt(transpose(x) * x)
+    @test IterativeSolvers._dot(x, y, UnconjugatedDot()) ≈ transpose(x) * y
+end
+
 end
 
 DocMeta.setdocmeta!(IterativeSolvers, :DocTestSetup, :(using IterativeSolvers); recursive=true)

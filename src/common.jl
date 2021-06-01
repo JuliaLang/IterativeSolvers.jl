@@ -1,6 +1,6 @@
 import LinearAlgebra: ldiv!, \
 
-export Identity
+export Identity, ConjugatedDot, UnconjugatedDot
 
 #### Type-handling
 """
@@ -30,3 +30,16 @@ struct Identity end
 \(::Identity, x) = copy(x)
 ldiv!(::Identity, x) = x
 ldiv!(y, ::Identity, x) = copyto!(y, x)
+
+"""
+Conjugated and unconjugated dot products
+"""
+abstract type AbstractDot end
+struct ConjugatedDot <: AbstractDot end
+struct UnconjugatedDot <: AbstractDot end
+
+_norm(x, ::ConjugatedDot) = norm(x)
+_dot(x, y, ::ConjugatedDot) = dot(x, y)
+
+_norm(x, ::UnconjugatedDot) = sqrt(sum(xₖ->xₖ^2, x))
+_dot(x, y, ::UnconjugatedDot) = transpose(@view(x[:])) * @view(y[:])  # allocating, but faster than sum(prod, zip(x,y))
